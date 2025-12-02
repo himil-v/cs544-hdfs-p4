@@ -1,0 +1,38 @@
+syntax="proto3";
+
+message Empty{}
+
+message BlockLocationsReq {
+  string path = 1;
+}
+
+message BlockLocationsResp {
+  map <string, int32> block_entries = 1;  // list of block locations
+  string error = 2;
+}
+
+message CalcAvgLoanReq {
+  int32 county_code = 1;
+}
+
+message CalcAvgLoanResp {
+  int32 avg_loan = 1;
+  string source = 2; // create, reuse, or recreate
+  string error = 3;
+}
+
+message StatusString{
+  string status= 1;
+}
+
+service Lender {
+  //Load input.data from SQL server and upload it to HDFS
+  rpc DbToHdfs (Empty) returns (StatusString);
+
+  //Get the block locations of the Parquet file in HDFS
+  rpc BlockLocations (BlockLocationsReq) returns (BlockLocationsResp);
+
+  //Calculate the average loan amount for a given county_code
+  rpc CalcAvgLoan (CalcAvgLoanReq) returns (CalcAvgLoanResp);
+}
+

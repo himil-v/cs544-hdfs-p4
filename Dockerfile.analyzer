@@ -1,0 +1,24 @@
+# Use a Python base image
+FROM python:3.9-slim-bullseye
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install system dependencies for matplotlib and update pip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        libfreetype6-dev \
+        libpng-dev \
+        docker.io && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir --upgrade pip
+
+# Copy the performance analyzer script into the container
+COPY performance_analyzer.py .
+
+# Install the required Python packages
+RUN pip install --no-cache-dir pandas matplotlib
+
+# Set the default command to run the script
+CMD ["python3", "performance_analyzer.py"]

@@ -1,0 +1,15 @@
+stages:
+  - submit
+
+submit_project:
+  stage: submit
+  before_script:
+    - apk add curl jq
+  script:
+    - chmod +x submit.sh
+    - sh ./submit.sh
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_COMMIT_MESSAGE !~ /draft:/i'
+      when: always
+    - if: '$CI_COMMIT_BRANCH != "main"'
+      when: never

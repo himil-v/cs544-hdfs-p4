@@ -1,0 +1,9 @@
+.vscode/
+.idea/
+.*env/
+venv/
+*venv/
+*.env
+**/__pycache__/
+**/score.json
+**/result.json

@@ -1,0 +1,36 @@
+# Use a specific Debian version (Bullseye) to ensure package availability
+FROM p4-hdfs
+
+WORKDIR /app
+
+# Copy gRPC proto file and server implementation
+COPY lender.proto .
+COPY server.py .
+COPY client.py .
+COPY core-site.xml .
+
+# Install Python dependencies
+RUN pip install grpcio \
+    grpcio-tools \
+    SQLAlchemy \
+    pandas \
+    pyarrow \
+    requests \
+    mysql-connector-python --break-system-packages
+
+# Generate gRPC Python files
+RUN python3 -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. lender.proto
+
+# Set environment variables for connecting to other services
+ENV MYSQL_HOST=mysql
+ENV HDFS_NAMENODE_HOST=boss
+ENV HDFS_NAMENODE_PORT=9000
+ENV HADOOP_CONF_DIR=/app
+ENV ARROW_LIBHDFS_DIR=$HADOOP_HOME/lib/native
+
+# Expose the gRPC server port
+EXPOSE 5000
+
+# Command to run the gRPC server
+CMD export CLASSPATH=$($HADOOP_HOME/bin/hdfs classpath --glob) && python3 server.py
+# CMD [ "python3", "server.py"]
